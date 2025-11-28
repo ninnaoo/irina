@@ -1,7 +1,8 @@
 window.onload = () => {
   const loading = document.getElementById("loading");
-  loading.style.display = "none"; // скрываем overlay
+  loading.style.display = "none"; // скрываем overlay после полной загрузки
 };
+
 const loadingOverlay = document.getElementById("loadingOverlay");
 const startBtn = document.getElementById("startBtn");
 
@@ -19,13 +20,10 @@ const music = document.getElementById("bgMusic");
 let score = 0;
 let spawned = 0;
 let gameOver = false;
-const finishScore = 10;
+const finishScore = 1;
 let gameStarted = false;
-let confettiActive = false;
 
-
-
-// прыжок
+// Прыжок
 function jump() {
   if (!player.classList.contains("jump")) {
     player.classList.add("jump");
@@ -35,26 +33,24 @@ function jump() {
 document.body.addEventListener("keydown", e => { if (e.code === "Space") jump(); });
 document.body.addEventListener("touchstart", jump);
 
-// музыка после клика
+// Музыка после клика
 document.body.addEventListener("click", () => {
   music.muted = false;
   music.play();
 }, { once: true });
 
-// проверка ориентации ДО загрузки
+// Проверка ориентации ДО загрузки
 function checkOrientationBeforeLoading() {
   if (window.innerWidth > window.innerHeight) {
-    // горизонтально → показываем загрузку
     rotateOverlay.style.display = 'none';
     loadingOverlay.style.display = 'flex';
   } else {
-    // вертикально → показываем просьбу повернуть
     rotateOverlay.style.display = 'flex';
     loadingOverlay.style.display = 'none';
   }
 }
 
-// проверка ориентации в реальном времени после старта игры
+// Проверка ориентации в реальном времени после старта игры
 function checkOrientationDuringGame() {
   if (!gameStarted) return;
   if (window.innerWidth > window.innerHeight) {
@@ -66,7 +62,7 @@ function checkOrientationDuringGame() {
   }
 }
 
-// запускаем проверку ДО загрузки
+// Слушатели resize/orientationchange
 checkOrientationBeforeLoading();
 window.addEventListener('resize', () => {
   checkOrientationBeforeLoading();
@@ -77,7 +73,7 @@ window.addEventListener('orientationchange', () => {
   checkOrientationDuringGame();
 });
 
-// старт игры
+// Старт игры
 function startGame() {
   gameStarted = true;
   score = 0;
@@ -87,10 +83,9 @@ function startGame() {
   message.style.display = "none";
   restartBtn.style.display = "none";
 
-  // удалить старые препятствия
   document.querySelectorAll(".obstacle").forEach(o => o.remove());
 
-  // скрываем загрузку
+  // скрываем загрузку и показываем игру
   loadingOverlay.style.display = 'none';
   gameContainer.style.display = 'block';
 
@@ -129,71 +124,62 @@ function spawnObstacle() {
       restartBtn.style.display = "inline-block";
       clearInterval(checkCollision);
     }
-  }, 30);
+  }, 50); // увеличиваем интервал для экономии ресурсов
 
- obstacle.addEventListener("animationend", () => {
-  if (!gameOver) {
-    score++;
-    scoreEl.textContent = "Пройдено: " + score;
-
-    if (score >= finishScore) {
-      gameOver = true;
-      message.style.display = "flex";
-      showFinal();
-
-      setTimeout(() => {
-        const birthdayExtra = document.getElementById("birthdayExtra");
-        birthdayExtra.classList.add("show");
-
-        // фиксируем видимость картинок
-        fixWishImages();
-      }, 800);
+  obstacle.addEventListener("animationend", () => {
+    if (!gameOver) {
+      score++;
+      scoreEl.textContent = "Пройдено: " + score;
+      if (score >= finishScore) {
+        gameOver = true;
+        message.style.display = "flex";
+        showFinal();
+        setTimeout(() => {
+          const birthdayExtra = document.getElementById("birthdayExtra");
+          birthdayExtra.classList.add("show");
+          fixWishImages();
+        }, 800);
+      }
     }
-  }
 
-  obstacle.remove();
-  clearInterval(checkCollision);
+    obstacle.remove();
+    clearInterval(checkCollision);
 
-  if (!gameOver && spawned < finishScore) {
-    setTimeout(spawnObstacle, 400 + Math.random() * 400);
-  }
-});
+    if (!gameOver && spawned < finishScore) {
+      setTimeout(spawnObstacle, 400 + Math.random() * 400);
+    }
+  });
+}
 
-// Вынеси функцию наружу, чтобы её можно было вызвать
+// Фиксируем видимость картинок
 function fixWishImages() {
   const images = document.querySelectorAll("#birthdayExtra .wish-img");
   images.forEach(img => {
-    // убираем анимацию, чтобы она не сбрасывала opacity
     img.style.animation = "none";
     img.style.opacity = "1";
     img.style.transform = "scale(1)";
   });
 }
-}
 
-// кнопка рестарта
+// Кнопки
 restartBtn.addEventListener("click", startGame);
-
-// кнопка «Начать игру»
 startBtn.addEventListener('click', startGame);
-
-// показываем загрузку после полной загрузки страницы, только если горизонтально
-
-
-
 
 // Показ финала
 function showFinal() {
+  const finalOverlay = document.getElementById("finalOverlay");
   finalOverlay.style.display = "flex";
 }
 
-// Нажатие на подарок → взрыв
+// Подарок
+const giftBox = document.getElementById("giftBox");
+const finalText = document.getElementById("finalText");
+
 giftBox.addEventListener("click", explodeGift);
 
 function explodeGift() {
   giftBox.style.animation = "none";
 
-  // Анимация исчезновения подарка
   giftBox.animate(
     [
       { transform: "scale(1)", opacity: 1 },
@@ -202,68 +188,7 @@ function explodeGift() {
     { duration: 500, fill: "forwards", easing: "ease-out" }
   );
 
-  // Запуск конфетти
-  setTimeout(startConfetti, 400);
-
-  // Показ текста
   setTimeout(() => {
     finalText.style.display = "block";
   }, 600);
 }
-
-// Конфетти
-const canvas = document.getElementById("confettiCanvas");
-const ctx = canvas.getContext("2d");
-
-let confettiPieces = [];
-
-function startConfetti() {
-  canvas.style.display = "block";
-  confettiActive = true;
-
-  for (let i = 0; i < 20; i++) {
-    confettiPieces.push({
-      x: Math.random() * window.innerWidth,
-      y: Math.random() * -window.innerHeight,
-      size: 5 + Math.random() * 8,
-      speed: 2 + Math.random() * 3,
-      angle: Math.random() * 360
-    });
-  }
-
-  drawConfetti();
-
-  // ⛔ Остановить через 3 секунды (можно менять)
-  setTimeout(() => {
-    confettiActive = false;
-    setTimeout(() => {
-      canvas.style.display = "none";
-      confettiPieces = []; // очистка
-    }, 500);
-  }, 2000);
-}
-
-function drawConfetti() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  confettiPieces.forEach(c => {
-    c.y += c.speed;
-    c.angle += 5;
-
-    if (c.y > canvas.height) c.y = -10;
-
-    ctx.save();
-    ctx.translate(c.x, c.y);
-    ctx.rotate(c.angle * Math.PI / 180);
-    ctx.fillStyle = 'rgb(209, 250, 255)';
-    ctx.fillRect(0, 0, c.size, c.size);
-    ctx.restore();
-  });
-
-  requestAnimationFrame(drawConfetti);
-}
-
-
