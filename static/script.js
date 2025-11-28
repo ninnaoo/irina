@@ -19,7 +19,7 @@ const music = document.getElementById("bgMusic");
 let score = 0;
 let spawned = 0;
 let gameOver = false;
-const finishScore = 1;
+const finishScore = 10;
 let gameStarted = false;
 let confettiActive = false;
 
@@ -265,3 +265,4 @@ function drawConfetti() {
 
   requestAnimationFrame(drawConfetti);
 }
+
