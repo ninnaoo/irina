@@ -221,7 +221,7 @@ function startConfetti() {
   canvas.style.display = "block";
   confettiActive = true;
 
-  for (let i = 0; i < 200; i++) {
+  for (let i = 0; i < 20; i++) {
     confettiPieces.push({
       x: Math.random() * window.innerWidth,
       y: Math.random() * -window.innerHeight,
@@ -265,4 +265,5 @@ function drawConfetti() {
 
   requestAnimationFrame(drawConfetti);
 }
+
 
