@@ -2,7 +2,7 @@ body {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  background: #ffffff url("../static/bg.jpg") repeat-x;
+  background: #ffffff url("../static/bg.jpeg") repeat-x;
   background-size: cover;
   font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif ;
 }
@@ -323,4 +323,5 @@ button{
   opacity: 1 !important;
   transform: scale(1) !important;
   animation: NONE !important;
+
 }
